@@ -28,6 +28,10 @@ class MainActivity : ComponentActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		enableEdgeToEdge()
+
+		// Observe incoming intents
+		Utils.showDialog(this, intent)
+
 		setContent {
 			HextreePoCTheme {
 				MainScreen()

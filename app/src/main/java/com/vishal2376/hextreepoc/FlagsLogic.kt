@@ -18,6 +18,8 @@ class Attack(private val context: Context) {
 		val intent = Intent()
 		intent.setClassName(packageName, activityPath)
 		context.startActivity(intent)
+
+		Utils.dumpIntent(context, intent, title = "Flag 1 Intent")
 	}
 
 	fun flag2() {
@@ -27,6 +29,9 @@ class Attack(private val context: Context) {
 		val intent = Intent()
 		intent.setClassName(packageName, activityPath)
 		intent.action = customAction
+
+		Utils.dumpIntent(context, intent, title = "Flag 2 Intent")
+
 		context.startActivity(intent)
 	}
 
@@ -39,6 +44,8 @@ class Attack(private val context: Context) {
 		intent.setClassName(packageName, activityPath)
 		intent.action = customAction
 		intent.data = customUri
+
+		Utils.dumpIntent(context, intent, title = "Flag 3 Intent")
 
 		context.startActivity(intent)
 	}

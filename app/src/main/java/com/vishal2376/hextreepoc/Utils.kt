@@ -11,6 +11,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.Window
@@ -20,6 +21,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 
 object Utils {
+
+	fun dumpIntent(context: Context, intent: Intent?, title: String) {
+		Log.d("@@@", "----- $title -----  \n${dumpIntent(context, intent)}")
+	}
 
 	fun dumpIntent(context: Context, intent: Intent?): String = dumpIntent(context, intent, 0)
 
