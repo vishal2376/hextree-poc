@@ -6,11 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -37,58 +36,42 @@ class MainActivity : ComponentActivity() {
 	}
 }
 
+data class Flag(val name: String, val action: () -> Unit)
+
 @Composable
 fun MainScreen() {
 	val context = LocalContext.current
 	val attack by remember { mutableStateOf(Attack(context)) }
 
+	val flags = remember(attack) {
+		listOf(
+			Flag("Flag 1 - Basic Activity") { attack.flag1() },
+			Flag("Flag 2 - Intent with Extras") { attack.flag2() },
+			Flag("Flag 3") { /* TODO */ },
+			Flag("Flag 4") { /* TODO */ },
+			Flag("Flag 5") { /* TODO */ },
+			Flag("Flag 6") { /* TODO */ },
+			Flag("Flag 7") { /* TODO */ },
+			Flag("Flag 8") { /* TODO */ },
+			Flag("Flag 9") { /* TODO */ },
+		)
+	}
+
 	Scaffold(
 		modifier = Modifier.fillMaxSize()
 	) { innerPadding ->
-		Column(
+		LazyColumn(
 			modifier = Modifier
 				.fillMaxSize()
-				.verticalScroll(rememberScrollState())
 				.background(Color.Black)
 				.padding(innerPadding),
 			horizontalAlignment = Alignment.CenterHorizontally,
 			verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
 		) {
-			// Flag 1
-			Button(onClick = { attack.flag1() }) {
-				Text("Flag 1 - Basic Activity")
-			}
-			// Flag 2
-			Button(onClick = {}) {
-				Text("Flag 2")
-			}
-			// Flag 3
-			Button(onClick = {}) {
-				Text("Flag 3")
-			}
-			// Flag 4
-			Button(onClick = {}) {
-				Text("Flag 4")
-			}
-			// Flag 5
-			Button(onClick = {}) {
-				Text("Flag 5")
-			}
-			// Flag 6
-			Button(onClick = {}) {
-				Text("Flag 6")
-			}
-			// Flag 7
-			Button(onClick = {}) {
-				Text("Flag 7")
-			}
-			// Flag 8
-			Button(onClick = {}) {
-				Text("Flag 8")
-			}
-			// Flag 9
-			Button(onClick = {}) {
-				Text("Flag 9")
+			items(flags) { flag ->
+				Button(onClick = flag.action) {
+					Text(flag.name)
+				}
 			}
 		}
 	}
