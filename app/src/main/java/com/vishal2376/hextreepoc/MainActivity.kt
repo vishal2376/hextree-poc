@@ -47,7 +47,7 @@ fun MainScreen() {
 		listOf(
 			Flag("Flag 1 - Basic Activity") { attack.flag1() },
 			Flag("Flag 2 - Intent with Extras") { attack.flag2() },
-			Flag("Flag 3") { /* TODO */ },
+			Flag("Flag 3 - Data URI") { attack.flag3() },
 			Flag("Flag 4") { /* TODO */ },
 			Flag("Flag 5") { /* TODO */ },
 			Flag("Flag 6") { /* TODO */ },
