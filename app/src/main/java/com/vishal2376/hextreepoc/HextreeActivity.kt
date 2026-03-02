@@ -1,5 +1,6 @@
 package com.vishal2376.hextreepoc
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,6 +39,28 @@ class HextreeActivity : ComponentActivity() {
 			}
 		}
 	}
+
+	/**
+	 * Result Handler — Intercepts data returned by target activities
+	 * Technique: onActivityResult Data Capture
+	 * Called automatically when target activity calls setResult() + finish().
+	 * requestCode matches what we passed in startActivityForResult() to identify which flag.
+	 * data contains the intent with flag/sensitive info sent back by target activity.
+	 * We display the returned intent extras using Utils.showDialog() to reveal the flag.
+	 */
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		super.onActivityResult(requestCode, resultCode, data)
+
+		// Flag8 result — display returned intent data
+		if (requestCode == 8) {
+			Utils.showDialog(this, data)
+		}
+
+		// Flag9 result — capture and display stolen flag from setResult()
+		if (requestCode == 9) {
+			Utils.showDialog(this, data)
+		}
+	}
 }
 
 data class Flag(val name: String, val action: () -> Unit)
@@ -57,7 +80,7 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 6 - Not Exported") {attack.flag6() },
 			Flag("Flag 7 - Activity Lifecycle") { attack.flag7() },
 			Flag("Flag 8 - Activity Result") { attack.flag8() },
-			Flag("Flag 9") { /* TODO */ },
+			Flag("Flag 9 - Activity Result Flag") { attack.flag9() },
 		)
 	}
 

