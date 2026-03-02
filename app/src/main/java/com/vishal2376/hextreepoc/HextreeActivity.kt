@@ -81,6 +81,7 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 7 - Activity Lifecycle") { attack.flag7() },
 			Flag("Flag 8 - Activity Result") { attack.flag8() },
 			Flag("Flag 9 - Activity Result Flag") { attack.flag9() },
+			Flag("Flag 12 - Implicit Intent") { attack.flag12() },
 		)
 	}
 

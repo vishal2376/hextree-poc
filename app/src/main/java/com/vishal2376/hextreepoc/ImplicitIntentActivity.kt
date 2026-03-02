@@ -10,12 +10,18 @@ class ImplicitIntentActivity : AppCompatActivity() {
 
 		Utils.showDialog(this, intent)
 
-		// Flag11 : Sending Custom Intent to Caller App
-		val resultIntent = Intent().apply {
-			putExtra("token", 1094795585)
-		}
+		// Intercept Flag12's implicit intent and return expected token
+		when (intent.action) {
+			"io.hextree.attacksurface.ATTACK_ME" -> {
 
-		setResult(RESULT_OK,resultIntent)
-		finish()
+				val resultIntent = Intent().apply {
+					putExtra("token", 1094795585)
+				}
+
+				setResult(RESULT_OK, resultIntent)
+				finish()
+			}
+
+		}
 	}
 }

