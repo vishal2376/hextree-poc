@@ -11,6 +11,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HextreePoC">
         <activity
+            android:name=".ImplicitIntentActivity"
+            android:exported="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="io.hextree.attacksurface.ATTACK_ME" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".HextreeActivity"
             android:exported="true"
             android:label="@string/app_name"
