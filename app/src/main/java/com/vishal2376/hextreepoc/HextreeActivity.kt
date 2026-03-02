@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.vishal2376.hextreepoc.ui.theme.HextreePoCTheme
 
-class MainActivity : ComponentActivity() {
+class HextreeActivity : ComponentActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		enableEdgeToEdge()
@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
 
 		setContent {
 			HextreePoCTheme {
-				MainScreen()
+				MainScreen(this)
 			}
 		}
 	}
@@ -43,9 +43,9 @@ class MainActivity : ComponentActivity() {
 data class Flag(val name: String, val action: () -> Unit)
 
 @Composable
-fun MainScreen() {
+fun MainScreen(activity: HextreeActivity) {
 	val context = LocalContext.current
-	val attack by remember { mutableStateOf(Attack(context)) }
+	val attack by remember { mutableStateOf(Attack(context, activity)) }
 
 	val flags = remember(attack) {
 		listOf(
@@ -56,7 +56,7 @@ fun MainScreen() {
 			Flag("Flag 5 - Intent in intent") { attack.flag5() },
 			Flag("Flag 6 - Not Exported") {attack.flag6() },
 			Flag("Flag 7 - Activity Lifecycle") { attack.flag7() },
-			Flag("Flag 8") { /* TODO */ },
+			Flag("Flag 8 - Activity Result") { attack.flag8() },
 			Flag("Flag 9") { /* TODO */ },
 		)
 	}
