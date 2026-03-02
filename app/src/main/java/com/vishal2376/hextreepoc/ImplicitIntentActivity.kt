@@ -1,5 +1,6 @@
 package com.vishal2376.hextreepoc
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
@@ -9,7 +10,12 @@ class ImplicitIntentActivity : AppCompatActivity() {
 
 		Utils.showDialog(this, intent)
 
-		setResult(RESULT_OK)
+		// Flag11 : Sending Custom Intent to Caller App
+		val resultIntent = Intent().apply {
+			putExtra("token", 1094795585)
+		}
+
+		setResult(RESULT_OK,resultIntent)
 		finish()
 	}
 }
