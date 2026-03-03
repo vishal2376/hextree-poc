@@ -2,6 +2,7 @@ package com.vishal2376.hextreepoc
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -61,6 +62,17 @@ class HextreeActivity : ComponentActivity() {
 			Utils.showDialog(this, data)
 		}
 	}
+
+	override fun onNewIntent(intent: Intent?) {
+		super.onNewIntent(intent)
+
+		// Receives flag data sent back by Flag22 via pendingIntent.send()
+		if (intent?.action == "FLAG22_RESULT") {
+			val flag = intent.getStringExtra("flag")
+			Log.d("@@@", "Flag22 : $flag")
+			Utils.showDialog(this, intent)
+		}
+	}
 }
 
 data class Flag(val name: String, val action: () -> Unit)
@@ -82,6 +94,7 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 8 - Activity Result") { attack.flag8() },
 			Flag("Flag 9 - Activity Result Flag") { attack.flag9() },
 			Flag("Flag 12 - Implicit Intent") { attack.flag12() },
+			Flag("Flag 22 - Pending Intent") { attack.flag22() },
 		)
 	}
 

