@@ -20,6 +20,15 @@
         </activity>
 
         <activity
+            android:name=".PendingIntentActivity"
+            android:exported="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="io.hextree.attacksurface.MUTATE_ME" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".HextreeActivity"
             android:exported="true"
             android:label="@string/app_name"
