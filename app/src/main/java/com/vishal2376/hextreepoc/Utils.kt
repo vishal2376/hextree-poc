@@ -19,6 +19,7 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.net.toUri
 
 object Utils {
 
@@ -192,6 +193,51 @@ object Utils {
 			duration = 300
 			startDelay = 100
 			start()
+		}
+	}
+
+	/**
+	 * Queries a Content Provider URI and logs all rows to Logcat.
+	 * Tag: "CP" — filter with: adb logcat | grep CP
+	 */
+	fun dumpCursor(
+		context: Context,
+		uri: String,
+		projection: Array<String>? = null,
+		selection: String? = null,
+		selectionArgs: Array<String>? = null,
+		sortOrder: String? = null,
+		title: String = "CP",
+	) {
+		try {
+			val cursor = context.contentResolver.query(
+				uri.toUri(), projection, selection, selectionArgs, sortOrder
+			)
+
+			if (cursor == null) {
+				Log.w("CP", "[$title] cursor = null")
+				return
+			}
+
+			cursor.use { c ->
+				Log.d(
+					"CP",
+					"[$title] URI=$uri rows=${c.count} cols=${c.columnNames.joinToString()}"
+				)
+				while (c.moveToNext()) {
+					val row = (0 until c.columnCount).joinToString {
+						"${c.getColumnName(it)}=${
+							c.getString(it)
+						}"
+					}
+					Log.d("CP", "[$title] Row ${c.position}: $row")
+				}
+			}
+
+		} catch (e: SecurityException) {
+			Log.e("CP", "[$title] SecurityException: ${e.message}")
+		} catch (e: Exception) {
+			Log.e("CP", "[$title] Exception: ${e.message}")
 		}
 	}
 }

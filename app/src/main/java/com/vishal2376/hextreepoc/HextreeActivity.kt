@@ -95,6 +95,9 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 9 - Activity Result Flag") { attack.flag9() },
 			Flag("Flag 12 - Implicit Intent") { attack.flag12() },
 			Flag("Flag 22 - Pending Intent") { attack.flag22() },
+			Flag("Flag 30 - Content Provider Query") { attack.flag30() },
+			Flag("Flag 31 - Provider URI Matching") { attack.flag31() },
+			Flag("Flag 32 - SQL Injection") { attack.flag32() },
 		)
 	}
 
