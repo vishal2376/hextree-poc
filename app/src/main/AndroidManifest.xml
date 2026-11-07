@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <queries>
-        <package android:name="io.hextree.attacksurface"/>
+        <package android:name="io.hextree.attacksurface" />
     </queries>
 
     <application
@@ -20,6 +20,13 @@
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="io.hextree.attacksurface.ATTACK_ME" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="io.hextree.FLAG33" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:host="io.hextree.flag33_2"
+                    android:scheme="content" />
             </intent-filter>
         </activity>
 
