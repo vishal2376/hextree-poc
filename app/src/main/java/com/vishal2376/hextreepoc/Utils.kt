@@ -10,6 +10,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -23,8 +24,10 @@ import androidx.core.net.toUri
 
 object Utils {
 
+	private const val TAG = "@@@"
+
 	fun dumpIntent(context: Context, intent: Intent?, title: String) {
-		Log.d("@@@", "----- $title -----  \n${dumpIntent(context, intent)}")
+		Log.d(TAG, "----- $title -----  \n${dumpIntent(context, intent)}")
 	}
 
 	fun dumpIntent(context: Context, intent: Intent?): String = dumpIntent(context, intent, 0)
@@ -198,7 +201,6 @@ object Utils {
 
 	/**
 	 * Queries a Content Provider URI and logs all rows to Logcat.
-	 * Tag: "CP" — filter with: adb logcat | grep CP
 	 */
 	fun dumpCursor(
 		context: Context,
@@ -215,13 +217,13 @@ object Utils {
 			)
 
 			if (cursor == null) {
-				Log.w("CP", "[$title] cursor = null")
+				Log.w(TAG, "[$title] cursor = null")
 				return
 			}
 
 			cursor.use { c ->
 				Log.d(
-					"CP",
+					TAG,
 					"[$title] URI=$uri rows=${c.count} cols=${c.columnNames.joinToString()}"
 				)
 				while (c.moveToNext()) {
@@ -230,14 +232,39 @@ object Utils {
 							c.getString(it)
 						}"
 					}
-					Log.d("CP", "[$title] Row ${c.position}: $row")
+					Log.d(TAG, "[$title] Row ${c.position}: $row")
 				}
 			}
 
 		} catch (e: SecurityException) {
-			Log.e("CP", "[$title] SecurityException: ${e.message}")
+			Log.e(TAG, "[$title] SecurityException: ${e.message}")
 		} catch (e: Exception) {
-			Log.e("CP", "[$title] Exception: ${e.message}")
+			Log.e(TAG, "[$title] Exception: ${e.message}")
+		}
+	}
+
+	/**
+	 * Reads the content of a file received via a content:// Uri
+	 * (e.g. from a FileProvider result intent) and logs it.
+	 */
+	fun readFileFromUri(context: Context, uri: Uri?, title: String = "FILE") {
+		if (uri == null) {
+			Log.w(TAG, "[$title] uri = null")
+			return
+		}
+
+		try {
+			val content = context.contentResolver.openInputStream(uri)?.use { input ->
+				input.bufferedReader().readText()
+			}
+
+			if (content == null) {
+				Log.w(TAG, "[$title] uri=$uri InputStream = null")
+			} else {
+				Log.d(TAG, "[$title] uri=$uri\n$content")
+			}
+		} catch (e: Exception) {
+			Log.e(TAG, "[$title] Exception: ${e.message}")
 		}
 	}
 }
