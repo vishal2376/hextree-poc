@@ -70,7 +70,7 @@ class HextreeActivity : ComponentActivity() {
 			dumpCursor(
 				context = this,
 				uri = data?.data.toString(),
-				projection = arrayOf("* FROM FLAG --"),
+				projection = arrayOf("* FROM Note; --"),
 				title = "Flag 33_1"
 			)
 		}
