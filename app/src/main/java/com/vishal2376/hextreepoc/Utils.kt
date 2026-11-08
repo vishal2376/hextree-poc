@@ -21,6 +21,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.net.toUri
+import java.io.FileOutputStream
 
 object Utils {
 
@@ -263,6 +264,30 @@ object Utils {
 			} else {
 				Log.d(TAG, "[$title] uri=$uri\n$content")
 			}
+		} catch (e: Exception) {
+			Log.e(TAG, "[$title] Exception: ${e.message}")
+		}
+	}
+
+	/**
+	 * Writes content to a file via its content:// Uri using a write-capable
+	 * ParcelFileDescriptor (mode "w" — truncates existing content first).
+	 * Requires FLAG_GRANT_WRITE_URI_PERMISSION on the given Uri.
+	 */
+	fun writeFileToUri(context: Context, uri: Uri?, content: String, title: String = "FILE") {
+		if (uri == null) {
+			Log.w(TAG, "[$title] uri = null")
+			return
+		}
+
+		try {
+			context.contentResolver.openFileDescriptor(uri, "w")?.use { pfd ->
+				FileOutputStream(pfd.fileDescriptor).use { out ->
+					out.write(content.toByteArray())
+				}
+			} ?: Log.w(TAG, "[$title] uri=$uri ParcelFileDescriptor = null")
+
+			Log.d(TAG, "[$title] uri=$uri wrote ${content.length} chars")
 		} catch (e: Exception) {
 			Log.e(TAG, "[$title] Exception: ${e.message}")
 		}
