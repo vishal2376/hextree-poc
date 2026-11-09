@@ -96,6 +96,11 @@ class HextreeActivity : ComponentActivity() {
 			Utils.writeFileToUri(this, data?.data, newContent)
 			Utils.readFileFromUri(this, data?.data)
 		}
+
+		// Flag 37 - confirm what Flag37Activity actually queried from our provider
+		if (requestCode == 37) {
+			dumpCursor(this, data?.data.toString(), title = "Flag 37")
+		}
 	}
 
 	override fun onNewIntent(intent: Intent?) {
@@ -137,6 +142,7 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 34 - Simple File provider") { attack.flag34() },
 			Flag("Flag 35 - Root File provider") { attack.flag35() },
 			Flag("Flag 36 - Overwriting Internal File") { attack.flag36() },
+			Flag("Flag 37 - File Traversal") { attack.flag37() },
 		)
 	}
 
