@@ -32,6 +32,9 @@ class HextreeActivity : ComponentActivity() {
 		super.onCreate(savedInstanceState)
 		enableEdgeToEdge()
 
+		// Register all dynamic broadcast receivers
+		DynamicReceivers.registerAll(this)
+
 		// Observe incoming intents
 		Utils.showDialog(this, intent)
 
@@ -112,6 +115,11 @@ class HextreeActivity : ComponentActivity() {
 			Log.d("@@@", "Flag22 : $flag")
 			Utils.showDialog(this, intent)
 		}
+	}
+
+	override fun onDestroy() {
+		DynamicReceivers.unregisterAll(this)
+		super.onDestroy()
 	}
 }
 
