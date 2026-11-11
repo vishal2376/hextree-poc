@@ -276,6 +276,19 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		context.startActivity(intent)
 	}
 
+	/**
+	 * FLAG 16 - Basic Broadcast Receiver
+	 * Technique: Explicit Broadcast to Exported Receiver
+	 *
+	 * Flow:
+	 * 1. Send explicit intent to Flag16Receiver via setClassName()
+	 * 2. Receiver checks intent.getStringExtra("flag") against hardcoded secret "give-flag-16"
+	 * 3. Match -> success() called directly inside onReceive()
+	 *
+	 * Key insight: onReceive() has no sender verification at all - it trusts the
+	 * "flag" extra purely by value, no check on who sent it. Same pattern as
+	 * Flag2's action-string check, just via sendBroadcast() instead of startActivity().
+	 */
 	fun flag16() {
 		val receiverPath = "$packageName.receivers.Flag16Receiver"
 		val intent = Intent().apply {
