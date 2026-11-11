@@ -134,6 +134,7 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 8 - Activity Result") { attack.flag8() },
 			Flag("Flag 9 - Activity Result Flag") { attack.flag9() },
 			Flag("Flag 12 - Implicit Intent") { attack.flag12() },
+			Flag("Flag 16 - Basic Exposed Receiver") { attack.flag16() },
 			Flag("Flag 22 - Pending Intent") { attack.flag22() },
 			Flag("Flag 30 - Content Provider Query") { attack.flag30() },
 			Flag("Flag 31 - Provider URI Matching") { attack.flag31() },
