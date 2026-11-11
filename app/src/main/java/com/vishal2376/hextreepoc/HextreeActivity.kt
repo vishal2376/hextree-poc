@@ -144,6 +144,7 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 12 - Implicit Intent") { attack.flag12() },
 			Flag("Flag 16 - Basic Exposed Receiver") { attack.flag16() },
 			Flag("Flag 17 - Receiver with Response") { attack.flag17() },
+			Flag("Flag 19 - Widget system intents") { attack.flag19() },
 			Flag("Flag 22 - Pending Intent") { attack.flag22() },
 			Flag("Flag 30 - Content Provider Query") { attack.flag30() },
 			Flag("Flag 31 - Provider URI Matching") { attack.flag31() },
