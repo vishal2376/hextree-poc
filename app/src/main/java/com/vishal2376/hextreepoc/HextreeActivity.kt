@@ -149,6 +149,8 @@ fun MainScreen(activity: HextreeActivity) {
 			Flag("Flag 22 - Pending Intent") { attack.flag22() },
 			Flag("Flag 24 - Basic Service Start") { attack.flag24() },
 			Flag("Flag 25 - Service lifecycle") { attack.flag25() },
+			Flag("Flag 26 - Basic Message handling") { attack.flag26() },
+			Flag("Flag 27 - Message Replies") { attack.flag27() },
 			Flag("Flag 30 - Content Provider Query") { attack.flag30() },
 			Flag("Flag 31 - Provider URI Matching") { attack.flag31() },
 			Flag("Flag 32 - SQL Injection Query") { attack.flag32() },

