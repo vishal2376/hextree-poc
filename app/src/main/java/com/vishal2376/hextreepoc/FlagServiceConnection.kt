@@ -8,6 +8,8 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
+import android.util.Log
+import io.hextree.attacksurface.services.IFlag28Interface
 
 /**
  * Author: Vishal Singh (vishal2376)
@@ -73,5 +75,20 @@ object Flag27Service {
 		override fun onServiceDisconnected(name: ComponentName?) {
 			mainMessenger = null
 		}
+	}
+}
+
+object Flag28Service {
+	val serviceConnection = object : ServiceConnection {
+		override fun onServiceConnected(
+			name: ComponentName?,
+			service: IBinder?,
+		) {
+			val result = IFlag28Interface.Stub.asInterface(service).openFlag()
+			Log.d("@@@", "Flag28 openFlag() -> $result")
+		}
+
+		override fun onServiceDisconnected(name: ComponentName?) {}
+
 	}
 }
